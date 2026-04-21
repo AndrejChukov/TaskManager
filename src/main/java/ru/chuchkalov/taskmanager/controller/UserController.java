@@ -1,11 +1,14 @@
 package ru.chuchkalov.taskmanager.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.chuchkalov.taskmanager.dto.UserResponseDTO;
 import ru.chuchkalov.taskmanager.entity.User;
 import ru.chuchkalov.taskmanager.service.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/api")
@@ -19,12 +22,20 @@ public class UserController {
 
     @PostMapping(path = "/users")
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@RequestBody User user) {
+    public UserResponseDTO createUser(@RequestBody @Valid User user) {
         return userService.createUser(user);
     }
 
     @GetMapping(path = "/users")
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public List<UserResponseDTO> getUsers() {
+        List<User> users = userService.getUsers();
+        return users.stream()
+                .map(u -> userService.convertUserToDTO(u))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping(path = "/users/{id}")
+    public UserResponseDTO getUser(@PathVariable("id") Long id) {
+        return userService.convertUserToDTO(userService.getUser(id));
     }
 }

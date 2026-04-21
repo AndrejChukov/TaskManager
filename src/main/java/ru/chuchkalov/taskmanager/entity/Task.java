@@ -1,8 +1,9 @@
 package ru.chuchkalov.taskmanager.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.chuchkalov.taskmanager.dto.TaskResponseDTO;
 
 import java.util.Date;
 
@@ -13,11 +14,15 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank
+    @Size(max = 50)
     private String title;
     private String description;
     @Enumerated(EnumType.STRING)
+    @NotBlank
     private Status status;
     @Enumerated(EnumType.STRING)
+    @NotBlank
     private Priority priority;
     private Date createdAt = new Date();
 
@@ -32,9 +37,4 @@ public class Task {
     public enum Priority {
         LOW, MEDIUM, HIGH
     }
-
-    public TaskResponseDTO convert() {
-        return new TaskResponseDTO(id, title, description, status, priority, createdAt, user.getUsername());
-    }
-
 }
