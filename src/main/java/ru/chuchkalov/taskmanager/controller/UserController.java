@@ -1,14 +1,13 @@
 package ru.chuchkalov.taskmanager.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.chuchkalov.taskmanager.dto.UserResponseDTO;
 import ru.chuchkalov.taskmanager.entity.User;
 import ru.chuchkalov.taskmanager.service.UserService;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/api")
@@ -27,8 +26,8 @@ public class UserController {
     }
 
     @GetMapping(path = "/users")
-    public List<UserResponseDTO> getUsers() {
-        return userService.getUsers();
+    public Page<UserResponseDTO> getUsers(Pageable pageable) {
+        return userService.getUsers(pageable);
     }
 
     @GetMapping(path = "/users/{id}")

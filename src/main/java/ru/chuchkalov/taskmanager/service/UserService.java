@@ -1,6 +1,8 @@
 package ru.chuchkalov.taskmanager.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.chuchkalov.taskmanager.dto.UserResponseDTO;
 import ru.chuchkalov.taskmanager.entity.User;
@@ -24,10 +26,9 @@ public class UserService {
         return userMapper.convert(user);
     }
 
-    public List<UserResponseDTO> getUsers() {
-        return ((List<User>) userRepository.findAll()).stream()
-                .map(userMapper::convert)
-                .collect(Collectors.toList());
+    public Page<UserResponseDTO> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(userMapper::convert);
     }
 
     public UserResponseDTO getUser(Long id) {

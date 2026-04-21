@@ -1,18 +1,15 @@
 package ru.chuchkalov.taskmanager.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.chuchkalov.taskmanager.entity.Task;
 
-import java.util.Date;
-
 @Data
 @AllArgsConstructor
-public class TaskResponseDTO {
+public class TaskRequestDTO {
     private Long id;
     private String title;
     private String description;
     private Task.Status status;
     private Task.Priority priority;
-    private Date createdAt;
-    private String ownerName;
 }

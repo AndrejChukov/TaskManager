@@ -1,11 +1,13 @@
 package ru.chuchkalov.taskmanager.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.chuchkalov.taskmanager.dto.TaskRequestDTO;
 import ru.chuchkalov.taskmanager.dto.TaskResponseDTO;
 import ru.chuchkalov.taskmanager.entity.Task;
-import ru.chuchkalov.taskmanager.entity.User;
 import ru.chuchkalov.taskmanager.exception.EntityNotFoundException;
 import ru.chuchkalov.taskmanager.mapper.TaskMapper;
 import ru.chuchkalov.taskmanager.repository.TaskRepository;
@@ -13,7 +15,6 @@ import ru.chuchkalov.taskmanager.repository.UserRepository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,9 @@ public class TaskService {
     private final TaskMapper taskMapper;
 
     @Transactional
-    public TaskResponseDTO createTask(Task task, Long id) {
+    public TaskResponseDTO createTask(TaskRequestDTO dto, Long id) {
+        Task task = taskMapper.toEntity(dto);
+        task.setStatus(Task.Status.NEW);
         return userRepository.findById(id)
                 .map(u -> {
                     task.setUser(u);
@@ -47,14 +50,14 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
-    public List<TaskResponseDTO> getTasks() {
-        return ((List<Task>) taskRepository.findAll()).stream()
-                .map(taskMapper::convert)
-                .collect(Collectors.toList());
+    public Page<TaskResponseDTO> getTasks(Pageable pageable) {
+        return taskRepository.findAll(pageable)
+                .map(taskMapper::convert);
     }
 
     @Transactional
-    public void updateTask(Task newTask, Long id) {
+    public void updateTask(TaskRequestDTO dto, Long id) {
+        Task newTask = taskMapper.toEntity(dto);
         taskRepository.findById(id)
                 .map(t -> {
                     newTask.setId(t.getId());

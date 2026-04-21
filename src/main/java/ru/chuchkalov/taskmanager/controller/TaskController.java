@@ -1,17 +1,16 @@
 package ru.chuchkalov.taskmanager.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.chuchkalov.taskmanager.dto.TaskRequestDTO;
 import ru.chuchkalov.taskmanager.dto.TaskResponseDTO;
-import ru.chuchkalov.taskmanager.entity.Task;
-import ru.chuchkalov.taskmanager.entity.User;
-import ru.chuchkalov.taskmanager.exception.EntityNotFoundException;
 import ru.chuchkalov.taskmanager.service.TaskService;
-
-import java.util.ArrayList;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -25,8 +24,8 @@ public class TaskController {
 
     @PostMapping("/tasks/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponseDTO createTask(@RequestBody @Valid Task task, @PathVariable("id") Long id) {
-        return taskService.createTask(task, id);
+    public TaskResponseDTO createTask(@RequestBody @Valid TaskRequestDTO dto, @PathVariable("id") Long id) {
+        return taskService.createTask(dto, id);
     }
 
     @GetMapping("/tasks/user/{id}")
@@ -35,22 +34,22 @@ public class TaskController {
     }
 
     @GetMapping("/tasks")
-    public List<TaskResponseDTO> getTasks() {
-        return taskService.getTasks();
+    public Page<TaskResponseDTO> getTasks(
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return taskService.getTasks(pageable);
     }
 
     @PutMapping("/tasks/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public String updateTask(@RequestBody @Valid Task newTask, @PathVariable("id") Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateTask(@RequestBody @Valid TaskRequestDTO newTask, @PathVariable("id") Long id) {
         taskService.updateTask(newTask, id);
-        return "{\"status\": \"accepted\"}";
     }
 
     @DeleteMapping("/tasks/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public String deleteTask(@PathVariable("id") Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTask(@PathVariable("id") Long id) {
         taskService.deleteTask(id);
-        return "{\"status\": \"accepted\"}";
     }
 
 }

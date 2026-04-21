@@ -18,9 +18,10 @@ public class User {
     @Size(min = 2, max = 50)
     private String username;
     @NotBlank
-    @Size(min = 2, max = 100)
+    @Size(min = 2, max = 255)
     private String password;
     @Email
+    @Size(max = 50)
     private String email;
     @Enumerated(EnumType.STRING)
     @NotNull

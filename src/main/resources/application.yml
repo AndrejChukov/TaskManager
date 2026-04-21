@@ -16,3 +16,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  data:
+    web:
+      pageable:
+        serialization-mode: via-dto

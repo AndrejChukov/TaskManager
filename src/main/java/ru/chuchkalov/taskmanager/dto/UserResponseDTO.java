@@ -1,12 +1,14 @@
 package ru.chuchkalov.taskmanager.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.chuchkalov.taskmanager.entity.User;
 
 @Data
+@AllArgsConstructor
 public class UserResponseDTO {
-    private final Long id;
-    private final String username;
-    private final String email;
-    private final User.Role role;
+    private Long id;
+    private String username;
+    private String email;
+    private User.Role role;
 }

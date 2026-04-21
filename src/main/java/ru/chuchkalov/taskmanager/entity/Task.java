@@ -18,6 +18,7 @@ public class Task {
     @NotBlank
     @Size(max = 50)
     private String title;
+    @Size(max = 500)
     private String description;
     @Enumerated(EnumType.STRING)
     @NotNull
