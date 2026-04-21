@@ -2,6 +2,7 @@ package ru.chuchkalov.taskmanager.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -19,10 +20,10 @@ public class Task {
     private String title;
     private String description;
     @Enumerated(EnumType.STRING)
-    @NotBlank
+    @NotNull
     private Status status;
     @Enumerated(EnumType.STRING)
-    @NotBlank
+    @NotNull
     private Priority priority;
     private Date createdAt = new Date();
 

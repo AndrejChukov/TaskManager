@@ -28,14 +28,11 @@ public class UserController {
 
     @GetMapping(path = "/users")
     public List<UserResponseDTO> getUsers() {
-        List<User> users = userService.getUsers();
-        return users.stream()
-                .map(u -> userService.convertUserToDTO(u))
-                .collect(Collectors.toList());
+        return userService.getUsers();
     }
 
     @GetMapping(path = "/users/{id}")
     public UserResponseDTO getUser(@PathVariable("id") Long id) {
-        return userService.convertUserToDTO(userService.getUser(id));
+        return userService.getUser(id);
     }
 }

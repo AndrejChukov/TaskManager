@@ -1,45 +1,40 @@
 package ru.chuchkalov.taskmanager.service;
 
-import org.springframework.http.HttpStatusCode;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import ru.chuchkalov.taskmanager.dto.UserResponseDTO;
 import ru.chuchkalov.taskmanager.entity.User;
+import ru.chuchkalov.taskmanager.exception.EntityNotFoundException;
+import ru.chuchkalov.taskmanager.mapper.UserMapper;
 import ru.chuchkalov.taskmanager.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class UserService {
 
-    private UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public UserResponseDTO createUser(User user) {
         // TODO: Validation
         userRepository.save(user);
-        return convertUserToDTO(user);
+        return userMapper.convert(user);
     }
 
-    public List<User> getUsers() {
-        return (List<User>) userRepository.findAll();
+    public List<UserResponseDTO> getUsers() {
+        return ((List<User>) userRepository.findAll()).stream()
+                .map(userMapper::convert)
+                .collect(Collectors.toList());
     }
 
-    public User getUser(Long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new ResponseStatusException(HttpStatusCode.valueOf(404))
-        );
-    }
-
-    public UserResponseDTO convertUserToDTO(User user) {
-        return new UserResponseDTO(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole()
+    public UserResponseDTO getUser(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::convert)
+                .orElseThrow(
+                () -> new EntityNotFoundException("User with ID " + id + " not found")
         );
     }
 }
