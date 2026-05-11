@@ -21,10 +21,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final SecurityConfig securityConfig;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDTO createUser(User user) {
-        user.setPassword(securityConfig.passwordEncoder().encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return userMapper.convert(user);
     }

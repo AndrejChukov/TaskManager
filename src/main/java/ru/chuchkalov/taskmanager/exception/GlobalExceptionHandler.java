@@ -21,4 +21,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(er, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleNotValidRole(AccessDeniedException ex) {
+        ErrorResponse er = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Permission denied (Not valid role)",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(er, HttpStatus.FORBIDDEN);
+    }
+
 }

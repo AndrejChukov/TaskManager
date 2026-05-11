@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.chuchkalov.taskmanager.dto.TaskRequestDTO;
 import ru.chuchkalov.taskmanager.dto.TaskResponseDTO;
@@ -34,6 +35,7 @@ public class TaskController {
     }
 
     @GetMapping("/tasks")
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<TaskResponseDTO> getTasks(
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {

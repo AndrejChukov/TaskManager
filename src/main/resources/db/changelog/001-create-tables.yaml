@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001
+      author: taskManager
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: VARCHAR(50)
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+              - column:
+                  name: email
+                  type: VARCHAR(50)
+              - column:
+                  name: role
+                  type: VARCHAR(10)
+
+        - createTable:
+            tableName: tasks
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: title
+                  type: VARCHAR(50)
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+              - column:
+                  name: priority
+                  type: VARCHAR(10)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: user_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: tasks
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_tasks_users
