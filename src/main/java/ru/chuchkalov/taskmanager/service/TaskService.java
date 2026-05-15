@@ -7,8 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.chuchkalov.taskmanager.dto.TaskRequestDTO;
-import ru.chuchkalov.taskmanager.dto.TaskResponseDTO;
+import ru.chuchkalov.taskmanager.dto.request.TaskRequestDTO;
+import ru.chuchkalov.taskmanager.dto.response.TaskResponseDTO;
 import ru.chuchkalov.taskmanager.entity.Task;
 import ru.chuchkalov.taskmanager.exception.EntityNotFoundException;
 import ru.chuchkalov.taskmanager.exception.AccessDeniedException;
@@ -73,18 +73,16 @@ public class TaskService {
     }
 
     public void deleteTask(Long id) {
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         Task task = taskRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Task with ID " + id + " not found"));
 
         boolean isAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         boolean isOwner = task.getUser().getUsername().equals(auth.getName());
 
         if (!isAdmin && !isOwner) {
-            throw new AccessDeniedException("You cannot delete task with ID " + task.getId());
+            throw new AccessDeniedException("You cannot delete task with ID " + task.getId() + ", " + isAdmin + ", " + isOwner);
         }
         taskRepository.deleteById(id);
     }

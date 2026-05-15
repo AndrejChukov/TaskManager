@@ -2,8 +2,8 @@ package ru.chuchkalov.taskmanager.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.chuchkalov.taskmanager.dto.TaskRequestDTO;
-import ru.chuchkalov.taskmanager.dto.TaskResponseDTO;
+import ru.chuchkalov.taskmanager.dto.request.TaskRequestDTO;
+import ru.chuchkalov.taskmanager.dto.response.TaskResponseDTO;
 import ru.chuchkalov.taskmanager.entity.Task;
 
 @Mapper(componentModel = "spring")

@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import ru.chuchkalov.taskmanager.dto.TaskRequestDTO;
-import ru.chuchkalov.taskmanager.dto.TaskResponseDTO;
+import ru.chuchkalov.taskmanager.dto.request.TaskRequestDTO;
+import ru.chuchkalov.taskmanager.dto.response.TaskResponseDTO;
 import ru.chuchkalov.taskmanager.entity.Task;
 import ru.chuchkalov.taskmanager.entity.User;
 import ru.chuchkalov.taskmanager.exception.AccessDeniedException;
@@ -69,7 +69,7 @@ class TaskServiceTest {
         );
 
         Task taskFromMapper = new Task();
-        taskFromMapper.setTitle(taskRequestDTO.getTitle());
+        taskFromMapper.setTitle(taskRequestDTO.title());
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(mockUser));
         when(taskMapper.toEntity(taskRequestDTO)).thenReturn(taskFromMapper);
@@ -100,7 +100,7 @@ class TaskServiceTest {
         );
 
         Task taskFromMapper = new Task();
-        taskFromMapper.setTitle(taskRequestDTO.getTitle());
+        taskFromMapper.setTitle(taskRequestDTO.title());
 
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
         when(taskMapper.toEntity(taskRequestDTO)).thenReturn(taskFromMapper);
@@ -120,7 +120,7 @@ class TaskServiceTest {
         oldTask.setTitle("Old title");
 
         Task taskFromMapper = new Task();
-        taskFromMapper.setTitle(taskRequestDTO.getTitle());
+        taskFromMapper.setTitle(taskRequestDTO.title());
 
         when(taskMapper.toEntity(taskRequestDTO)).thenReturn(taskFromMapper);
         when(taskRepository.findById(anyLong())).thenReturn(Optional.of(oldTask));
@@ -130,7 +130,7 @@ class TaskServiceTest {
 
         verify(taskRepository).save(taskCaptor.capture());
         Task capturedTask = taskCaptor.getValue();
-        assertEquals(taskRequestDTO.getTitle(), capturedTask.getTitle());
+        assertEquals(taskRequestDTO.title(), capturedTask.getTitle());
         assertNotNull(capturedTask.getCreatedAt());
     }
 

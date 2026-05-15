@@ -10,12 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.chuchkalov.taskmanager.dto.UserResponseDTO;
+import ru.chuchkalov.taskmanager.dto.response.UserResponseDTO;
 import ru.chuchkalov.taskmanager.entity.User;
 import ru.chuchkalov.taskmanager.exception.EntityNotFoundException;
 import ru.chuchkalov.taskmanager.mapper.UserMapper;
 import ru.chuchkalov.taskmanager.repository.UserRepository;
-import ru.chuchkalov.taskmanager.security.SecurityConfig;
 import ru.chuchkalov.taskmanager.service.UserService;
 
 import java.util.List;
@@ -76,7 +75,7 @@ class UserServiceTest {
         Page<UserResponseDTO> responseUsers = userService.getUsers(pageable);
 
         assertEquals(1, responseUsers.getTotalElements());
-        assertEquals(userDto.getUsername(), responseUsers.getContent().get(0).getUsername());
+        assertEquals(userDto.username(), responseUsers.getContent().get(0).username());
 
         verify(userRepository).findAll(pageable);
 
@@ -89,10 +88,10 @@ class UserServiceTest {
 
         UserResponseDTO response = userService.getUser(USER_ID);
 
-        assertEquals(userDto.getId(), response.getId());
-        assertEquals(userDto.getUsername(), response.getUsername());
-        assertEquals(userDto.getEmail(), response.getEmail());
-        assertEquals(userDto.getRole(), response.getRole());
+        assertEquals(userDto.id(), response.id());
+        assertEquals(userDto.username(), response.username());
+        assertEquals(userDto.email(), response.email());
+        assertEquals(userDto.role(), response.role());
 
         verify(userRepository).findById(anyLong());
     }

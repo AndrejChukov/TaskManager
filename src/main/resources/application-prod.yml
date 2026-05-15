@@ -12,3 +12,8 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  security:
+    jwt:
+      secret-key: a-very-long-and-secure-random-secret-key-that-is-at-least-32-chars-long
+      expiration-time: 15
+      algorithm: HS256
