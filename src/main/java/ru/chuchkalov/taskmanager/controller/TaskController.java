@@ -25,19 +25,32 @@ public class TaskController {
 
     @PostMapping("/tasks/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponseDTO createTask(@RequestBody @Valid TaskRequestDTO dto, @PathVariable("id") Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public TaskResponseDTO createTaskByUserId(@RequestBody @Valid TaskRequestDTO dto, @PathVariable("id") Long id) {
         return taskService.createTask(dto, id);
     }
 
+    @PostMapping("/tasks/user")
+    @ResponseStatus(HttpStatus.CREATED)
+    public TaskResponseDTO createTaskToCurrentUser(@RequestBody @Valid TaskRequestDTO dto) {
+        return taskService.createTaskToCurrentUser(dto);
+    }
+
     @GetMapping("/tasks/user/{id}")
-    public List<TaskResponseDTO> getTaskByUser(@PathVariable("id") Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<TaskResponseDTO> getTaskByUserId(@PathVariable("id") Long id) {
         return taskService.findTasksByUserId(id);
+    }
+
+    @GetMapping("/tasks/user")
+    public List<TaskResponseDTO> getTaskFromCurrentUser() {
+        return taskService.getTasksFromCurrentUser();
     }
 
     @GetMapping("/tasks")
     @PreAuthorize("hasRole('ADMIN')")
     public Page<TaskResponseDTO> getTasks(
-            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
         return taskService.getTasks(pageable);
     }

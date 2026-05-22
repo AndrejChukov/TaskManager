@@ -30,8 +30,6 @@ public class TokenService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        System.out.println(roles);
-
         var user = (User) authentication.getPrincipal();
 
         var builder = new JWTClaimsSet.Builder()

@@ -29,7 +29,7 @@ public class Task {
     private Priority priority;
     private Date createdAt = new Date();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

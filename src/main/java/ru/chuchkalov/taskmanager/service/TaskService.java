@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.chuchkalov.taskmanager.dto.request.TaskRequestDTO;
@@ -41,6 +42,21 @@ public class TaskService {
                 }).orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " not found"));
     }
 
+    @Transactional
+    public TaskResponseDTO createTaskToCurrentUser(TaskRequestDTO dto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) auth.getPrincipal();
+        Long id = jwt.getClaim("id");;
+        Task task = taskMapper.toEntity(dto);
+        return userRepository.findById(id)
+                        .map(u -> {
+                            task.setUser(u);
+                            task.setCreatedAt(new Date());
+                            taskRepository.save(task);
+                            return taskMapper.convert(task);
+                        }).orElseThrow(() -> new EntityNotFoundException("Error has occurred with user's id: " + id));
+    }
+
     public List<TaskResponseDTO> findTasksByUserId(Long id) {
         List<Task> tasks = taskRepository.findByUserId(id);
         userRepository.findById(id).orElseThrow(() ->
@@ -51,6 +67,15 @@ public class TaskService {
         return tasks.stream()
                 .map(taskMapper::convert)
                 .collect(Collectors.toList());
+    }
+
+    public List<TaskResponseDTO> getTasksFromCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) auth.getPrincipal();
+        Long id = jwt.getClaim("id");
+        return taskRepository.findByUserId(id).stream()
+                .map(taskMapper::convert)
+                .toList();
     }
 
     public Page<TaskResponseDTO> getTasks(Pageable pageable) {
