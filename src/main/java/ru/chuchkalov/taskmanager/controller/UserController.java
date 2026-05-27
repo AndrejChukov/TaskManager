@@ -51,4 +51,10 @@ public class UserController {
     public UserResponseDTO getUser(@PathVariable("id") Long id) {
         return userService.getUser(id);
     }
+
+    @DeleteMapping(path = "/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteUser(@PathVariable("id") Long userId) {
+        userService.deleteUser(userId);
+    }
 }

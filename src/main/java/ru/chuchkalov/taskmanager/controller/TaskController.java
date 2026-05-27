@@ -30,7 +30,7 @@ public class TaskController {
         return taskService.createTask(dto, id);
     }
 
-    @PostMapping("/tasks/user")
+    @PostMapping("/my-tasks")
     @ResponseStatus(HttpStatus.CREATED)
     public TaskResponseDTO createTaskToCurrentUser(@RequestBody @Valid TaskRequestDTO dto) {
         return taskService.createTaskToCurrentUser(dto);
@@ -39,10 +39,10 @@ public class TaskController {
     @GetMapping("/tasks/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public List<TaskResponseDTO> getTaskByUserId(@PathVariable("id") Long id) {
-        return taskService.findTasksByUserId(id);
+        return taskService.getTasksByUserId(id);
     }
 
-    @GetMapping("/tasks/user")
+    @GetMapping("/my-tasks")
     public List<TaskResponseDTO> getTaskFromCurrentUser() {
         return taskService.getTasksFromCurrentUser();
     }
@@ -55,13 +55,13 @@ public class TaskController {
         return taskService.getTasks(pageable);
     }
 
-    @PutMapping("/tasks/{id}")
+    @PutMapping("/my-tasks/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateTask(@RequestBody @Valid TaskRequestDTO newTask, @PathVariable("id") Long id) {
         taskService.updateTask(newTask, id);
     }
 
-    @DeleteMapping("/tasks/{id}")
+    @DeleteMapping("/my-tasks/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable("id") Long id) {
         taskService.deleteTask(id);

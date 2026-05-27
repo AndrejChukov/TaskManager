@@ -57,7 +57,8 @@ public class TaskService {
                         }).orElseThrow(() -> new EntityNotFoundException("Error has occurred with user's id: " + id));
     }
 
-    public List<TaskResponseDTO> findTasksByUserId(Long id) {
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> getTasksByUserId(Long id) {
         List<Task> tasks = taskRepository.findByUserId(id);
         userRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("User with ID " + id + " not found"));
@@ -69,6 +70,7 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<TaskResponseDTO> getTasksFromCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) auth.getPrincipal();
@@ -78,6 +80,7 @@ public class TaskService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public Page<TaskResponseDTO> getTasks(Pageable pageable) {
         return taskRepository.findAll(pageable)
                 .map(taskMapper::convert);
@@ -97,6 +100,7 @@ public class TaskService {
                         new EntityNotFoundException("Task with ID " + id + " not found"));
     }
 
+    @Transactional
     public void deleteTask(Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Task task = taskRepository.findById(id).orElseThrow(
