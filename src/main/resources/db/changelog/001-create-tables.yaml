@@ -65,3 +65,4 @@ databaseChangeLog:
             referencedTableName: users
             referencedColumnNames: id
             constraintName: fk_tasks_users
+            onDelete: CASCADE

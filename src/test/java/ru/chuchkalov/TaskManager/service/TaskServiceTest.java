@@ -23,6 +23,7 @@ import ru.chuchkalov.taskmanager.repository.TaskRepository;
 import ru.chuchkalov.taskmanager.repository.UserRepository;
 import ru.chuchkalov.taskmanager.service.TaskService;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
@@ -63,9 +64,9 @@ class TaskServiceTest {
     @Test
     public void verifySetCreatedAtCalled() {
         TaskResponseDTO taskResponseDTO = new TaskResponseDTO(
-                null, "Title", "Descr",
+                "Title", "Descr",
                 Task.Status.NEW, Task.Priority.MEDIUM,
-                new Date(), mockUser.getUsername()
+                Instant.now(), mockUser.getUsername()
         );
 
         Task taskFromMapper = new Task();

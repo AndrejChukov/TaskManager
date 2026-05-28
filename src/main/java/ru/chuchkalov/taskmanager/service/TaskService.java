@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.chuchkalov.taskmanager.dto.projection.TaskProjection;
 import ru.chuchkalov.taskmanager.dto.request.TaskRequestDTO;
 import ru.chuchkalov.taskmanager.dto.response.TaskResponseDTO;
 import ru.chuchkalov.taskmanager.entity.Task;
@@ -17,9 +18,9 @@ import ru.chuchkalov.taskmanager.mapper.TaskMapper;
 import ru.chuchkalov.taskmanager.repository.TaskRepository;
 import ru.chuchkalov.taskmanager.repository.UserRepository;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @AllArgsConstructor
@@ -36,7 +37,7 @@ public class TaskService {
         return userRepository.findById(id)
                 .map(u -> {
                     task.setUser(u);
-                    task.setCreatedAt(new Date());
+                    task.setCreatedAt(Instant.now());
                     taskRepository.save(task);
                     return taskMapper.convert(task);
                 }).orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " not found"));
@@ -51,7 +52,7 @@ public class TaskService {
         return userRepository.findById(id)
                         .map(u -> {
                             task.setUser(u);
-                            task.setCreatedAt(new Date());
+                            task.setCreatedAt(Instant.now());
                             taskRepository.save(task);
                             return taskMapper.convert(task);
                         }).orElseThrow(() -> new EntityNotFoundException("Error has occurred with user's id: " + id));
@@ -59,15 +60,17 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<TaskResponseDTO> getTasksByUserId(Long id) {
-        List<Task> tasks = taskRepository.findByUserId(id);
-        userRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("User with ID " + id + " not found"));
+        if (!userRepository.existsById(id))
+            throw new EntityNotFoundException("User with ID " + id + " not found");
 
-        if (tasks.isEmpty()) throw new EntityNotFoundException("Tasks with User's id " + id + " not found");
+        List<TaskProjection> projections = taskRepository.findTasksResponseDtoByUserId(id);
 
-        return tasks.stream()
+        if (projections.isEmpty())
+            throw new EntityNotFoundException("Tasks with User's id " + id + " not found");
+
+        return projections.stream()
                 .map(taskMapper::convert)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +78,7 @@ public class TaskService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) auth.getPrincipal();
         Long id = jwt.getClaim("id");
-        return taskRepository.findByUserId(id).stream()
+        return taskRepository.findTasksResponseDtoByUserId(id).stream()
                 .map(taskMapper::convert)
                 .toList();
     }

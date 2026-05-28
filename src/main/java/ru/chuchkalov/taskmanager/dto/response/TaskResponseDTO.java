@@ -1,14 +1,14 @@
 package ru.chuchkalov.taskmanager.dto.response;
 
 import ru.chuchkalov.taskmanager.entity.Task;
-import java.util.Date;
+
+import java.time.Instant;
 
 public record TaskResponseDTO(
-        Long id,
         String title,
         String description,
         Task.Status status,
         Task.Priority priority,
-        Date createdAt,
+        Instant createdAt,
         String ownerName) {
 }

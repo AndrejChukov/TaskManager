@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.chuchkalov.taskmanager.dto.projection.UserProjection;
 import ru.chuchkalov.taskmanager.dto.request.UserRegistrationRequestDTO;
 import ru.chuchkalov.taskmanager.dto.response.LoginResponseDTO;
 import ru.chuchkalov.taskmanager.dto.request.LoginRequestDTO;
@@ -59,25 +60,25 @@ public class UserService {
         return userMapper.convert(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<UserResponseDTO> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
-                .map(userMapper::convert);
+        return userRepository.findAllUserProjections(pageable).map(userMapper::convert);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserResponseDTO getUser(Long id) {
-        return userRepository.findById(id)
-                .map(userMapper::convert)
-                .orElseThrow(
-                () -> new EntityNotFoundException("User with ID " + id + " not found")
-        );
+        return userMapper.convert(getUserProjection(id));
     }
 
     @Transactional
     public void deleteUser(Long id) {
-        userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("User with ID: " + id + " not found"));
+        getUserProjection(id);
         userRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public UserProjection getUserProjection(Long id) {
+        return userRepository.findUserProjectionById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID: " + id + " not found"));
     }
 }

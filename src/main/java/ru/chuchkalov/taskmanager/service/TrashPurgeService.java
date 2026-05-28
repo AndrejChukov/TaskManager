@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.chuchkalov.taskmanager.repository.TaskRepository;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @AllArgsConstructor
@@ -17,7 +18,7 @@ public class TrashPurgeService {
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void purgeOldTrash() {
-        Date thirtyDaysAgo = new Date(System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000));
+        Instant thirtyDaysAgo = Instant.now().minus(30, ChronoUnit.DAYS);
         taskRepository.hardDeleteTasksOlderThan(thirtyDaysAgo);
     }
 }

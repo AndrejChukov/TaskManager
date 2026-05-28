@@ -33,7 +33,7 @@ public class User implements UserDetails {
     @NotNull
     private Role role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Task> tasks;
 
     public enum Role {

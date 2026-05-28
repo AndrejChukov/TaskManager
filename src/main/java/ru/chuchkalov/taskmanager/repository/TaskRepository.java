@@ -8,20 +8,25 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+import ru.chuchkalov.taskmanager.dto.projection.TaskProjection;
+import ru.chuchkalov.taskmanager.dto.response.TaskResponseDTO;
 import ru.chuchkalov.taskmanager.entity.Task;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findByUserId(Long id);
 
     @Override
     @EntityGraph(attributePaths = "user")
     Page<Task> findAll(Pageable pageable);
 
+    @Query("SELECT t.title AS title, t.description AS description, t.status AS status, " +
+            "t.priority AS priority, t.createdAt AS createdAt, u.username AS userUsername " +
+            "FROM Task t JOIN t.user u WHERE u.id = :id")
+    List<TaskProjection> findTasksResponseDtoByUserId(@Param("id") Long userId);
+
     @Modifying
-    @Transactional
-    @Query(value = "DELETE FROM tasks WHERE delete = true AND deleted_at < :date", nativeQuery = true)
-    void hardDeleteTasksOlderThan(@Param("date") Date date);
+    @Query(value = "DELETE FROM tasks WHERE deleted = true AND deleted_at < :date", nativeQuery = true)
+    void hardDeleteTasksOlderThan(@Param("date") Instant date);
 }

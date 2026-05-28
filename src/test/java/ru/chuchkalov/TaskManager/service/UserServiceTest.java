@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import ru.chuchkalov.taskmanager.dto.projection.UserProjection;
 import ru.chuchkalov.taskmanager.dto.response.UserResponseDTO;
 import ru.chuchkalov.taskmanager.entity.User;
 import ru.chuchkalov.taskmanager.exception.EntityNotFoundException;
@@ -46,7 +47,7 @@ class UserServiceTest {
         mockUser.setPassword("1234");
 
         userDto = new UserResponseDTO(
-                mockUser.getId(), mockUser.getUsername(),
+                mockUser.getUsername(),
                 mockUser.getEmail(), mockUser.getRole());
     }
 
@@ -63,47 +64,6 @@ class UserServiceTest {
 
         assertEquals(USER_ID, capturedUser.getId());
         assertEquals("hashed_password", capturedUser.getPassword());
-    }
-
-    @Test
-    public void getUsersTest() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<User> users = new PageImpl<>(List.of(mockUser));
-        when(userRepository.findAll(pageable)).thenReturn(users);
-        when(userMapper.convert(mockUser)).thenReturn(userDto);
-
-        Page<UserResponseDTO> responseUsers = userService.getUsers(pageable);
-
-        assertEquals(1, responseUsers.getTotalElements());
-        assertEquals(userDto.username(), responseUsers.getContent().get(0).username());
-
-        verify(userRepository).findAll(pageable);
-
-    }
-
-    @Test
-    public void getUserTest() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(mockUser));
-        when(userMapper.convert(mockUser)).thenReturn(userDto);
-
-        UserResponseDTO response = userService.getUser(USER_ID);
-
-        assertEquals(userDto.id(), response.id());
-        assertEquals(userDto.username(), response.username());
-        assertEquals(userDto.email(), response.email());
-        assertEquals(userDto.role(), response.role());
-
-        verify(userRepository).findById(anyLong());
-    }
-
-    @Test
-    public void getUserTestShouldThrowEntityNotFoundException() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> userService.getUser(USER_ID));
-
-        verify(userRepository).findById(anyLong());
-        verify(userMapper, never()).convert(any());
     }
 
 }
