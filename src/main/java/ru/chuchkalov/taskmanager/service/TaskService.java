@@ -1,6 +1,7 @@
 package ru.chuchkalov.taskmanager.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.util.List;
 
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class TaskService {
@@ -34,11 +36,13 @@ public class TaskService {
     public TaskResponseDTO createTask(TaskRequestDTO dto, Long id) {
         Task task = taskMapper.toEntity(dto);
         task.setStatus(Task.Status.NEW);
+
         return userRepository.findById(id)
                 .map(u -> {
                     task.setUser(u);
                     task.setCreatedAt(Instant.now());
                     taskRepository.save(task);
+                    log.info("Task {} created successfully for user {}", task.getId(), u.getId());
                     return taskMapper.convert(task);
                 }).orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " not found"));
     }
@@ -54,6 +58,7 @@ public class TaskService {
                             task.setUser(u);
                             task.setCreatedAt(Instant.now());
                             taskRepository.save(task);
+                            log.info("Task {} created successfully for user {}", task.getId(), id);
                             return taskMapper.convert(task);
                         }).orElseThrow(() -> new EntityNotFoundException("Error has occurred with user's id: " + id));
     }
@@ -78,6 +83,7 @@ public class TaskService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) auth.getPrincipal();
         Long id = jwt.getClaim("id");
+
         return taskRepository.findTasksResponseDtoByUserId(id).stream()
                 .map(taskMapper::convert)
                 .toList();
@@ -97,6 +103,8 @@ public class TaskService {
                     newTask.setId(t.getId());
                     newTask.setUser(t.getUser());
                     newTask.setCreatedAt(t.getCreatedAt());
+                    log.info("Task {} updated successfully for user {}",
+                            t.getId(), t.getUser().getId());
                     return taskRepository.save(newTask);
                 })
                 .orElseThrow(() ->
@@ -117,6 +125,7 @@ public class TaskService {
             throw new AccessDeniedException("You cannot delete task with ID " + task.getId() + ", " + isAdmin + ", " + isOwner);
         }
         taskRepository.deleteById(id);
+        log.info("Task {} deleted successfully for user {}", id, task.getUser().getId());
     }
 
 }
