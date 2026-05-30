@@ -1,6 +1,7 @@
 package ru.chuchkalov.taskmanager.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import ru.chuchkalov.taskmanager.exception.EntityNotFoundException;
 import ru.chuchkalov.taskmanager.mapper.UserMapper;
 import ru.chuchkalov.taskmanager.repository.UserRepository;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -57,6 +59,7 @@ public class UserService {
     public UserResponseDTO createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+        log.info("User {} created successfully", user.getId());
         return userMapper.convert(user);
     }
 
@@ -74,6 +77,7 @@ public class UserService {
     public void deleteUser(Long id) {
         getUserProjection(id);
         userRepository.deleteById(id);
+        log.info("User {} deleted successfully", id);
     }
 
     @Transactional(readOnly = true)
