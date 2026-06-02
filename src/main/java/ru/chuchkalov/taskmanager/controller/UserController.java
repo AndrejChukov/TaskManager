@@ -42,8 +42,8 @@ public class UserController {
 
     @GetMapping(path = "/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public Page<UserResponseDTO> getUsers(Pageable pageable) {
-        return userService.getUsers(pageable);
+    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
+        return userService.getAllUsers(pageable);
     }
 
     @GetMapping(path = "/users/{id}")

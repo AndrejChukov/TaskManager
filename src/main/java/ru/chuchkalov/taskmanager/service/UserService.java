@@ -64,7 +64,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponseDTO> getUsers(Pageable pageable) {
+    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
         return userRepository.findAllUserProjections(pageable).map(userMapper::convert);
     }
 
