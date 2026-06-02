@@ -9,9 +9,15 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import ru.chuchkalov.taskmanager.dto.projection.TaskProjection;
 import ru.chuchkalov.taskmanager.dto.request.TaskRequestDTO;
 import ru.chuchkalov.taskmanager.dto.response.TaskResponseDTO;
 import ru.chuchkalov.taskmanager.entity.Task;
@@ -24,8 +30,7 @@ import ru.chuchkalov.taskmanager.repository.UserRepository;
 import ru.chuchkalov.taskmanager.service.TaskService;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,6 +59,9 @@ class TaskServiceTest {
         mockUser.setId(USER_ID);
         mockUser.setUsername("Andrey");
 
+        taskResponseDTO = new TaskResponseDTO(
+                "title", "sfd", null, null, null, null);
+
         taskRequestDTO = new TaskRequestDTO(
                 null, "Title", "Descr",
                 Task.Status.NEW, Task.Priority.MEDIUM
@@ -62,7 +70,7 @@ class TaskServiceTest {
 
 
     @Test
-    public void verifySetCreatedAtCalled() {
+    public void createTask_Success() {
         TaskResponseDTO taskResponseDTO = new TaskResponseDTO(
                 "Title", "Descr",
                 Task.Status.NEW, Task.Priority.MEDIUM,
@@ -89,7 +97,7 @@ class TaskServiceTest {
     }
 
     @Test
-    public void createTaskShouldThrowExceptionWhenUserNotFound() {
+    public void createTask_ThrowException_UserNotFound() {
         Long userId = 1L;
         User mockUser = new User();
         mockUser.setId(userId);
@@ -116,7 +124,105 @@ class TaskServiceTest {
     }
 
     @Test
-    public void verifyUpdatingTask() {
+    public void createTaskToCurrentUser_Success() {
+        Task task = new Task();
+        Authentication auth = mock(Authentication.class);
+        Jwt jwt = mock(Jwt.class);
+        when(auth.getPrincipal()).thenReturn(jwt);
+        when(jwt.getClaim("id")).thenReturn(USER_ID);
+
+        when(taskMapper.toEntity(taskRequestDTO)).thenReturn(task);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mockUser));
+        when(taskMapper.convert(task)).thenReturn(taskResponseDTO);
+
+        TaskResponseDTO response = taskService.createTaskToCurrentUser(taskRequestDTO);
+
+        assertNotNull(response);
+        assertEquals(taskResponseDTO, response);
+
+        verify(taskMapper, times(1)).toEntity(taskRequestDTO);
+        verify(taskMapper, times(1)).convert(task);
+        verify(userRepository, times(1)).findById(USER_ID);
+    }
+
+    @Test
+    public void getTasksByUserId_Success() {
+        TaskProjection mockProjection = mock(TaskProjection.class);
+
+        when(userRepository.existsById(USER_ID)).thenReturn(true);
+        when(taskRepository.findTasksResponseDtoByUserId(USER_ID)).thenReturn(List.of(mockProjection));
+        when(taskMapper.convert(mockProjection)).thenReturn(taskResponseDTO);
+
+        List<TaskResponseDTO> response = taskService.getTasksByUserId(USER_ID);
+
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(taskResponseDTO, response.get(0));
+
+        verify(userRepository, times(1)).existsById(USER_ID);
+        verify(taskRepository, times(1)).findTasksResponseDtoByUserId(USER_ID);
+        verify(taskMapper, times(1)).convert(mockProjection);
+    }
+
+    @Test
+    public void getTaskByUserId_ThrowException_EntityNotFound_UserIsEmpty() {
+        when(userRepository.existsById(USER_ID)).thenReturn(false);
+        assertThrows(EntityNotFoundException.class, () -> taskService.getTasksByUserId(USER_ID));
+    }
+
+    @Test
+    public void getTaskByUserId_ThrowException_EntityNotFound_TasksIsEmpty() {
+        when(userRepository.existsById(USER_ID)).thenReturn(true);
+        when(taskRepository.findTasksResponseDtoByUserId(USER_ID)).thenReturn(List.of());
+        assertThrows(EntityNotFoundException.class, () -> taskService.getTasksByUserId(USER_ID));
+    }
+
+    @Test
+    public void getTasksFromCurrentUser_Success() {
+        Task task = new Task();
+        TaskProjection mockProjection = mock(TaskProjection.class);
+        Authentication auth = mock(Authentication.class);
+        Jwt jwt = mock(Jwt.class);
+        when(auth.getPrincipal()).thenReturn(jwt);
+        when(jwt.getClaim("id")).thenReturn(USER_ID);
+
+        when(taskRepository.findTasksResponseDtoByUserId(USER_ID)).thenReturn(List.of(mockProjection));
+        when(taskMapper.convert(mockProjection)).thenReturn(taskResponseDTO);
+
+        List<TaskResponseDTO> response = taskService.getTasksFromCurrentUser();
+
+        assertNotNull(response);
+        assertEquals(taskResponseDTO, response.get(0));
+        assertEquals(1, response.size());
+
+        verify(taskRepository, times(1)).findTasksResponseDtoByUserId(USER_ID);
+        verify(taskMapper, times(1)).convert(mockProjection);
+
+    }
+
+    @Test
+    public void getAllTasks_Success() {
+        Task mockTask = mock(Task.class);
+
+        List<Task> tasks = Collections.singletonList(mockTask);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> mockPage = new PageImpl<>(tasks, pageable, 1);
+
+        when(taskRepository.findAll(pageable)).thenReturn(mockPage);
+        when(taskMapper.convert(mockTask)).thenReturn(taskResponseDTO);
+
+        Page<TaskResponseDTO> response = taskService.getAllTasks(pageable);
+
+        assertNotNull(response);
+        assertEquals(taskResponseDTO, response.getContent().get(0));
+        assertEquals(1, response.getContent().size());
+
+        verify(taskRepository, times(1)).findAll();
+        verify(taskMapper, times(1)).convert(mockTask);
+    }
+
+    @Test
+    public void updateTask_Success() {
         Task oldTask = new Task();
         oldTask.setTitle("Old title");
 
@@ -136,7 +242,7 @@ class TaskServiceTest {
     }
 
     @Test
-    public void verifyDeletingTaskSuccess() {
+    public void deleteTask_Success() {
         Task mockTask = new Task();
         mockTask.setTitle("Test title");
         mockTask.setUser(mockUser);
@@ -155,7 +261,7 @@ class TaskServiceTest {
     }
 
     @Test
-    public void deleteTaskShouldThrowExceptionWhenUserIsNotOwner() {
+    public void deleteTask_ThrowException_UserIsNotOwner() {
         Task mockTask = new Task();
         mockTask.setTitle("Test title");
         mockTask.setUser(mockUser);

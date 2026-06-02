@@ -63,7 +63,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void registerTest() {
+    public void register_Success() {
         UserRegistrationRequestDTO requestDto = mock(UserRegistrationRequestDTO.class);
         when(userMapper.registerToEntity(requestDto)).thenReturn(mockUser);
         when(passwordEncoder.encode(mockUser.getPassword())).thenReturn("hashed_password");
@@ -82,7 +82,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void authenticateTest() {
+    public void authenticate_Success() {
         User fakeUser = mock(User.class);
         LoginRequestDTO loginRequestDTO = new LoginRequestDTO("my-user", "my-password");
         Authentication mockAuth = mock(Authentication.class);
@@ -110,7 +110,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void createUserTest() {
+    public void createUser_Success() {
         when(passwordEncoder.encode(mockUser.getPassword()))
                 .thenReturn("hashed_password");
 
@@ -125,7 +125,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void getAllUsersTest() {
+    public void getAllUsers_Success() {
         Pageable pageable = PageRequest.of(0, 10);
 
         UserProjection mockProjection = mock(UserProjection.class);
@@ -148,7 +148,7 @@ class UserServiceTest {
 
 
     @Test
-    public void getUserTest() {
+    public void getUser_Success() {
         UserProjection userProjection = mock(UserProjection.class);
         when(userRepository.findUserProjectionById(USER_ID)).thenReturn(Optional.of(userProjection));
         when(userMapper.convert(userProjection)).thenReturn(userDto);
