@@ -128,8 +128,13 @@ class TaskServiceTest {
         Task task = new Task();
         Authentication auth = mock(Authentication.class);
         Jwt jwt = mock(Jwt.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
         when(auth.getPrincipal()).thenReturn(jwt);
         when(jwt.getClaim("id")).thenReturn(USER_ID);
+
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
 
         when(taskMapper.toEntity(taskRequestDTO)).thenReturn(task);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mockUser));
@@ -183,8 +188,13 @@ class TaskServiceTest {
         TaskProjection mockProjection = mock(TaskProjection.class);
         Authentication auth = mock(Authentication.class);
         Jwt jwt = mock(Jwt.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
         when(auth.getPrincipal()).thenReturn(jwt);
         when(jwt.getClaim("id")).thenReturn(USER_ID);
+
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
 
         when(taskRepository.findTasksResponseDtoByUserId(USER_ID)).thenReturn(List.of(mockProjection));
         when(taskMapper.convert(mockProjection)).thenReturn(taskResponseDTO);
@@ -217,7 +227,7 @@ class TaskServiceTest {
         assertEquals(taskResponseDTO, response.getContent().get(0));
         assertEquals(1, response.getContent().size());
 
-        verify(taskRepository, times(1)).findAll();
+        verify(taskRepository, times(1)).findAll(pageable);
         verify(taskMapper, times(1)).convert(mockTask);
     }
 
