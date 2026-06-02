@@ -90,7 +90,7 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TaskResponseDTO> getTasks(Pageable pageable) {
+    public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
         return taskRepository.findAll(pageable)
                 .map(taskMapper::convert);
     }
