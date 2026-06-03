@@ -52,7 +52,7 @@ public class TaskController {
     public Page<TaskResponseDTO> getTasks(
             @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        return taskService.getTasks(pageable);
+        return taskService.getAllTasks(pageable);
     }
 
     @PutMapping("/my-tasks/{id}")
