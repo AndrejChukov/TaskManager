@@ -1,9 +1,10 @@
-package ru.chuchkalov.TaskManager;
+package ru.chuchkalov.taskmanager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.chuchkalov.taskmanager.TaskManagerApplication;
 
-@SpringBootTest
+@SpringBootTest(classes = TaskManagerApplication.class)
 class TaskManagerApplicationTests {
 
 	@Test

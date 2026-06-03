@@ -235,6 +235,7 @@ class TaskServiceTest {
     public void updateTask_Success() {
         Task oldTask = new Task();
         oldTask.setTitle("Old title");
+        oldTask.setUser(mockUser);
 
         Task taskFromMapper = new Task();
         taskFromMapper.setTitle(taskRequestDTO.title());
