@@ -1,4 +1,4 @@
-package ru.chuchkalov.TaskManager.service;
+package ru.chuchkalov.taskmanager.service;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
